@@ -6,6 +6,8 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email").notNull(),
+  notificationsEnabled: boolean("notifications_enabled").default(true),
 });
 
 export const devices = pgTable("devices", {
@@ -28,6 +30,9 @@ export const projects = pgTable("projects", {
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  email: true,
+}).extend({
+  email: z.string().email("Invalid email format"),
 });
 
 export const insertDeviceSchema = createInsertSchema(devices).pick({

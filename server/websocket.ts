@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { Server } from "http";
 import { storage } from "./storage";
+import { EmailService } from "./email";
 
 export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ server, path: "/ws" });
@@ -15,6 +16,8 @@ export function setupWebSocket(server: Server) {
 
   setInterval(async () => {
     const devices = await storage.getDevices();
+    const users = await storage.getUsers(); // Add this method to storage
+
     for (const device of devices) {
       const isOnline = Math.random() > 0.1; // Simulate device status
       if (device.isOnline !== isOnline) {
@@ -22,12 +25,19 @@ export function setupWebSocket(server: Server) {
           isOnline,
           lastSeen: new Date(),
         });
+
+        // Broadcast the status change
         broadcast({
           type: "device_status",
           deviceId: device.id,
           isOnline,
           lastSeen: new Date(),
         });
+
+        // Send email notifications to all users
+        for (const user of users) {
+          await EmailService.sendDeviceStatusNotification(user, device, isOnline);
+        }
       }
     }
   }, 5000);

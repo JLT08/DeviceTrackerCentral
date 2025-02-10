@@ -26,6 +26,7 @@ export interface IStorage {
   deleteProject(id: number): Promise<void>;
 
   sessionStore: session.Store;
+  getUsers(): Promise<User[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -114,6 +115,10 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProject(id: number): Promise<void> {
     await db.delete(projects).where(eq(projects.id, id));
+  }
+
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
   }
 }
 
