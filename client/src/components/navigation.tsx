@@ -11,24 +11,6 @@ export function Navigation() {
     <div className="flex flex-col h-screen w-64 border-r bg-background">
       {/* Header */}
       <div className="p-6 border-b">
-        <div className="flex items-center gap-4 mb-4">
-          <Button
-            variant="destructive"
-            size="sm"
-            className="font-semibold"
-            onClick={() => logoutMutation.mutate()}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.close()}
-          >
-            Close Panel
-          </Button>
-        </div>
         <h1 className="text-xl font-bold">ICUMS</h1>
       </div>
 
@@ -54,6 +36,17 @@ export function Navigation() {
         </Link>
       </nav>
 
+      <div className="p-4 mt-auto border-t">
+        <Button
+          variant="destructive"
+          size="sm"
+          className="w-full font-semibold"
+          onClick={() => logoutMutation.mutate()}
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Logout
+        </Button>
+      </div>
       </div>
   );
 }
