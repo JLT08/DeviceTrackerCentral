@@ -6,14 +6,18 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.GMAIL_USER || 'johnlennarttimbal24@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD // This needs to be an App Password, not your regular Gmail password
+    pass: process.env.GMAIL_PASSWORD // Regular Gmail password
+  },
+  tls: {
+    rejectUnauthorized: false // Allow self-signed certificates
   }
 });
 
 // Test the connection
 transporter.verify((error) => {
   if (error) {
-    console.error('SMTP connection error:', error);
+    console.error('Email configuration error:', error);
+    console.log('Note: Make sure to use your regular Gmail password and enable "Less secure app access" in Gmail settings');
   } else {
     console.log('SMTP server is ready to send emails');
   }
