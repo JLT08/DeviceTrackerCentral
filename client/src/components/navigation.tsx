@@ -37,12 +37,12 @@ export function Navigation() {
       </nav>
 
       {/* Logout Section */}
-      <div className="mt-auto">
+      <div className="mt-auto sticky bottom-0 bg-background">
         <Separator />
         <div className="p-4">
           <Button
             variant="destructive"
-            className="w-full justify-start font-semibold"
+            className="w-full justify-start font-semibold shadow-sm"
             onClick={() => logoutMutation.mutate()}
           >
             <LogOut className="h-4 w-4 mr-2" />
