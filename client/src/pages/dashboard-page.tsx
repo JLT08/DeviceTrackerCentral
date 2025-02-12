@@ -15,11 +15,14 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+// Updated status colors to use valid badge variants
 const statusColors = {
   not_started: "secondary",
   in_progress: "default",
-  complete: "success",
+  complete: "default", // Changed from 'success' to 'default'
 } as const;
+
+type ProjectStatus = keyof typeof statusColors;
 
 // Sample data for the graph
 const deviceData = [
@@ -39,6 +42,14 @@ export default function DashboardPage() {
   const { data: projects, isLoading: isLoadingProjects } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
+
+  if (!devices && isLoadingDevices) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -117,7 +128,7 @@ export default function DashboardPage() {
                             {project.name}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={statusColors[project.status]}>
+                            <Badge variant={statusColors[project.status as ProjectStatus]}>
                               {project.status.replace("_", " ")}
                             </Badge>
                           </TableCell>

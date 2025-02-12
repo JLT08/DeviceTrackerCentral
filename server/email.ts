@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { User, Device } from "@shared/schema";
 
-// Initialize the email transporter
+// Initialize the email transporter with less secure app access
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
