@@ -37,8 +37,7 @@ export function Navigation() {
       </nav>
 
       {/* Logout Section */}
-      <div className="mt-auto sticky bottom-0 bg-background">
-        <Separator />
+      <div className="fixed bottom-0 left-0 w-64 bg-background border-t">
         <div className="p-4">
           <Button
             variant="destructive"
