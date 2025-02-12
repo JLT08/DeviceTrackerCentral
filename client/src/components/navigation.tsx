@@ -8,10 +8,13 @@ export function Navigation() {
   const { logoutMutation } = useAuth();
 
   return (
-    <div className="h-screen w-64 border-r bg-background flex flex-col">
+    <div className="flex flex-col h-screen w-64 border-r bg-background">
+      {/* Header */}
       <div className="p-6 border-b">
         <h1 className="text-xl font-bold">ICUMS</h1>
       </div>
+
+      {/* Navigation Links */}
       <nav className="flex-1 p-4 space-y-2">
         <Link href="/">
           <Button variant="ghost" className="w-full justify-start">
@@ -32,15 +35,20 @@ export function Navigation() {
           </Button>
         </Link>
       </nav>
-      <div className="p-4 border-t bg-muted/10">
-        <Button
-          variant="destructive"
-          className="w-full justify-start"
-          onClick={() => logoutMutation.mutate()}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Logout
-        </Button>
+
+      {/* Logout Section */}
+      <div className="mt-auto">
+        <Separator />
+        <div className="p-4">
+          <Button
+            variant="destructive"
+            className="w-full justify-start font-semibold"
+            onClick={() => logoutMutation.mutate()}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
       </div>
     </div>
   );
