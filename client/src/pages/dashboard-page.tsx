@@ -13,12 +13,23 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const statusColors = {
   not_started: "secondary",
   in_progress: "default",
   complete: "success",
 } as const;
+
+// Sample data for the graph
+const deviceData = [
+  { time: '00:00', onlineDevices: 4 },
+  { time: '04:00', onlineDevices: 3 },
+  { time: '08:00', onlineDevices: 5 },
+  { time: '12:00', onlineDevices: 6 },
+  { time: '16:00', onlineDevices: 4 },
+  { time: '20:00', onlineDevices: 3 },
+];
 
 export default function DashboardPage() {
   const { data: devices, isLoading: isLoadingDevices } = useQuery<Device[]>({
@@ -35,6 +46,32 @@ export default function DashboardPage() {
       <main className="flex-1 overflow-y-auto bg-background">
         <div className="p-8">
           <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+
+          {/* Device Status Graph */}
+          <section className="mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Device Status Over Time</CardTitle>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={deviceData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="onlineDevices" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2}
+                      name="Online Devices"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </section>
 
           {/* Device Status Grid */}
           <section className="mb-8">
