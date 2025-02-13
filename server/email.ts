@@ -1,14 +1,12 @@
 import nodemailer from 'nodemailer';
 import { User, Device } from "@shared/schema";
 
-// Initialize the email transporter with less secure app access
+// Initialize the email transporter with Gmail SMTP using less secure app access
 const transporter = nodemailer.createTransport({
-  host: 'smtp.rgoc.com.ph',
-  port: 587,
-  secure: false,
+  service: 'gmail',
   auth: {
-    user: process.env.SMTP_USER || 'smtpmailer@rgoc.com.ph',
-    pass: process.env.SMTP_PASSWORD
+    user: 'johnlennarttimbal24@gmail.com', // Your Gmail address
+    pass: process.env.GMAIL_PASSWORD // Regular Gmail password
   },
   tls: {
     rejectUnauthorized: false
@@ -19,7 +17,7 @@ const transporter = nodemailer.createTransport({
 transporter.verify((error) => {
   if (error) {
     console.error('Email configuration error:', error);
-    console.log('Note: Make sure to use your regular Gmail password and enable "Less secure app access" in Gmail settings');
+    console.log('Note: Make sure to enable "Less secure app access" in Gmail settings');
   } else {
     console.log('SMTP server is ready to send emails');
   }
@@ -47,7 +45,7 @@ export class EmailService {
 
     try {
       await transporter.sendMail({
-        from: process.env.GMAIL_USER || 'johnlennarttimbal24@gmail.com',
+        from: 'johnlennarttimbal24@gmail.com', // Your Gmail address
         to: user.email,
         subject,
         html,

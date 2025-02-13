@@ -1,4 +1,3 @@
-
 import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -7,6 +6,8 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email").notNull(),
+  notificationsEnabled: boolean("notifications_enabled").default(true),
 });
 
 export const devices = pgTable("devices", {
@@ -14,8 +15,8 @@ export const devices = pgTable("devices", {
   name: text("name").notNull(),
   ipAddress: text("ip_address").notNull(),
   description: text("description"),
-  isAlive: boolean("is_online").default(false),
-  lastChecked: timestamp("last_checked"),
+  isOnline: boolean("is_online").default(false),
+  lastSeen: timestamp("last_seen"),
 });
 
 export const projects = pgTable("projects", {

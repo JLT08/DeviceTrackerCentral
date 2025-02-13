@@ -16,7 +16,7 @@ export function setupWebSocket(server: Server) {
 
   setInterval(async () => {
     const devices = await storage.getDevices();
-    const users = await storage.getUsers(); // Add this method to storage
+    const users = await storage.getUsers();
 
     for (const device of devices) {
       const isOnline = Math.random() > 0.1; // Simulate device status

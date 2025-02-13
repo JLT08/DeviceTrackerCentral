@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Server, Folder, LogOut } from "lucide-react";
@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 
 export function Navigation() {
   const { logoutMutation } = useAuth();
+  const [location] = useLocation();
 
   return (
     <div className="flex flex-col h-screen w-64 border-r bg-background">
@@ -16,37 +17,51 @@ export function Navigation() {
 
       {/* Navigation Links */}
       <nav className="flex-1 p-4 space-y-2">
-        <Link href="/">
-          <Button variant="ghost" className="w-full justify-start">
+        <Button
+          variant="ghost"
+          className="w-full justify-start"
+          asChild
+        >
+          <Link href="/">
             <LayoutDashboard className="h-4 w-4 mr-2" />
             Dashboard
-          </Button>
-        </Link>
-        <Link href="/devices">
-          <Button variant="ghost" className="w-full justify-start">
+          </Link>
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="w-full justify-start"
+          asChild
+        >
+          <Link href="/devices">
             <Server className="h-4 w-4 mr-2" />
             Devices
-          </Button>
-        </Link>
-        <Link href="/projects">
-          <Button variant="ghost" className="w-full justify-start">
+          </Link>
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="w-full justify-start"
+          asChild
+        >
+          <Link href="/projects">
             <Folder className="h-4 w-4 mr-2" />
             Projects
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </nav>
 
-      <div className="p-4 mt-auto border-t">
+      {/* Footer with Logout */}
+      <div className="p-4 border-t">
         <Button
           variant="destructive"
-          size="sm"
-          className="w-full font-semibold"
+          className="w-full justify-start"
           onClick={() => logoutMutation.mutate()}
         >
           <LogOut className="h-4 w-4 mr-2" />
           Logout
         </Button>
       </div>
-      </div>
+    </div>
   );
 }
