@@ -1,26 +1,21 @@
 import { useState } from "react";
 import { Navigation } from "@/components/navigation";
 import { DeviceForm } from "@/components/device-form";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { DeviceGroups } from "@/components/device-groups";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { type Device, type InsertDevice } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Loader2, Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { DeviceStatus } from "@/components/device-status";
 
 export default function DevicesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: devices, isLoading } = useQuery<Device[]>({
     queryKey: ["/api/devices"],
@@ -37,19 +32,6 @@ export default function DevicesPage() {
       toast({
         title: "Success",
         description: "Device created successfully",
-      });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/devices/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/devices"] });
-      toast({
-        title: "Success",
-        description: "Device deleted successfully",
       });
     },
   });
@@ -84,42 +66,24 @@ export default function DevicesPage() {
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>IP Address</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {devices?.map((device) => (
-                  <TableRow key={device.id}>
-                    <TableCell className="font-medium">{device.name}</TableCell>
-                    <TableCell>{device.ipAddress}</TableCell>
-                    <TableCell>
-                      <Badge variant={device.isOnline ? "default" : "destructive"}>
-                        {device.isOnline ? "Online" : "Offline"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {device.description}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteMutation.mutate(device.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Tabs defaultValue="list" className="space-y-6">
+              <TabsList>
+                <TabsTrigger value="list">List View</TabsTrigger>
+                <TabsTrigger value="groups">Group View</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="list">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {devices?.map((device) => (
+                    <DeviceStatus key={device.id} device={device} />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="groups">
+                <DeviceGroups />
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </main>

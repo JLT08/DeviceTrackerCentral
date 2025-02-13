@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
+import { type DeviceGroup } from "@shared/schema";
 
 interface DeviceFormProps {
   onSubmit: (data: InsertDevice) => void;
@@ -14,7 +15,7 @@ interface DeviceFormProps {
 }
 
 export function DeviceForm({ onSubmit, defaultValues }: DeviceFormProps) {
-  const { data: deviceGroups } = useQuery({
+  const { data: deviceGroups } = useQuery<DeviceGroup[]>({
     queryKey: ["/api/device-groups"],
   });
 
@@ -67,7 +68,7 @@ export function DeviceForm({ onSubmit, defaultValues }: DeviceFormProps) {
               <FormLabel>Category</FormLabel>
               <Select 
                 onValueChange={field.onChange} 
-                defaultValue={field.value}
+                value={field.value}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -94,7 +95,7 @@ export function DeviceForm({ onSubmit, defaultValues }: DeviceFormProps) {
             <FormItem>
               <FormLabel>Device Group</FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(Number(value))}
+                onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}
                 value={field.value?.toString()}
               >
                 <FormControl>
@@ -122,14 +123,14 @@ export function DeviceForm({ onSubmit, defaultValues }: DeviceFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea value={field.value || ''} onChange={field.onChange} />
+                <Textarea {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Save Device</Button>
+        <Button type="submit" className="w-full">Save Device</Button>
       </form>
     </Form>
   );
