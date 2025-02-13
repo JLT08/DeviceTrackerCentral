@@ -1,3 +1,4 @@
+
 import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -6,8 +7,6 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  email: text("email").notNull(),
-  notificationsEnabled: boolean("notifications_enabled").default(true),
 });
 
 export const devices = pgTable("devices", {
@@ -15,8 +14,8 @@ export const devices = pgTable("devices", {
   name: text("name").notNull(),
   ipAddress: text("ip_address").notNull(),
   description: text("description"),
-  isOnline: boolean("is_online").default(false),
-  lastSeen: timestamp("last_seen"),
+  isAlive: boolean("is_alive").default(false),
+  lastChecked: timestamp("last_checked"),
 });
 
 export const projects = pgTable("projects", {
@@ -27,26 +26,24 @@ export const projects = pgTable("projects", {
   assignedTo: integer("assigned_to").references(() => users.id),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  email: true,
-}).extend({
-  email: z.string().email("Invalid email format"),
+export const deviceHistory = pgTable("device_history", {
+  id: serial("id").primaryKey(),
+  deviceId: integer("device_id").references(() => devices.id, { onDelete: 'cascade' }),
 });
 
-export const insertDeviceSchema = createInsertSchema(devices).pick({
-  name: true,
-  ipAddress: true,
-  description: true,
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  deviceId: integer("device_id").references(() => devices.id, { onDelete: 'cascade' }),
 });
 
-export const insertProjectSchema = createInsertSchema(projects).pick({
-  name: true,
-  description: true,
-  status: true,
-  assignedTo: true,
-}).extend({
+export const tasks = pgTable("tasks", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").references(() => projects.id, { onDelete: 'cascade' }),
+});
+
+export const insertUserSchema = createInsertSchema(users);
+export const insertDeviceSchema = createInsertSchema(devices);
+export const insertProjectSchema = createInsertSchema(projects).extend({
   status: z.enum(["not_started", "in_progress", "complete"]),
 });
 
