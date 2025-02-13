@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/navigation";
 import { DeviceStatus } from "@/components/device-status";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type Device, type Project } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -27,6 +27,7 @@ const statusColors = {
 type ProjectStatus = keyof typeof statusColors;
 
 export default function DashboardPage() {
+  const queryClient = useQueryClient();
   const { data: devices, isLoading: isLoadingDevices } = useQuery<Device[]>({
     queryKey: ["/api/devices"],
   });
@@ -42,13 +43,24 @@ export default function DashboardPage() {
     totalDevices: number;
   }>>([]);
 
-  // Update connection data when receiving WebSocket messages
+  // Update connection data and device status when receiving WebSocket messages
   useEffect(() => {
     if (!socket) return;
 
     const handleDeviceStatus = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
       if (data.type === "device_status") {
+        // Update device status in React Query cache
+        queryClient.setQueryData<Device[]>(["/api/devices"], (oldDevices) => {
+          if (!oldDevices) return oldDevices;
+          return oldDevices.map(device => 
+            device.id === data.deviceId 
+              ? { ...device, isOnline: data.isOnline, lastSeen: data.lastSeen }
+              : device
+          );
+        });
+
+        // Update connection health graph
         setConnectionData(prev => {
           const now = new Date();
           const newPoint = {
@@ -66,7 +78,7 @@ export default function DashboardPage() {
 
     socket.addEventListener("message", handleDeviceStatus);
     return () => socket.removeEventListener("message", handleDeviceStatus);
-  }, [socket, devices]);
+  }, [socket, devices, queryClient]);
 
   if (!devices && isLoadingDevices) {
     return (
