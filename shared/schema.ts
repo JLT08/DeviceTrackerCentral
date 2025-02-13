@@ -14,7 +14,7 @@ export const devices = pgTable("devices", {
   name: text("name").notNull(),
   ipAddress: text("ip_address").notNull(),
   description: text("description"),
-  isAlive: boolean("is_alive").default(false),
+  isAlive: boolean("is_online").default(false),
   lastChecked: timestamp("last_checked"),
 });
 
