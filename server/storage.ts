@@ -68,7 +68,7 @@ export class DatabaseStorage implements IStorage {
       .insert(devices)
       .values({
         ...insertDevice,
-        isOnline: false,
+        isAlive: false,
         lastSeen: new Date(),
       })
       .returning();
