@@ -1,0 +1,41 @@
+ Column  |  Type   | Collation | Nullable |              Default
+----------+---------+-----------+----------+-----------------------------------
+ id       | integer |           | not null | nextval('users_id_seq'::regclass)
+ username | text    |           | not null |
+ password | text    |           | not null |
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_username_key" UNIQUE CONSTRAINT, btree (username)
+Referenced by:
+    TABLE "projects" CONSTRAINT "projects_assigned_to_fkey" FOREIGN KEY (assigned_to) REFERENCES users(id)
+
+                                         Table "public.devices"
+    Column    |            Type             | Collation | Nullable |               Default
+--------------+-----------------------------+-----------+----------+-------------------------------------
+ id           | integer                     |           | not null | nextval('devices_id_seq'::regclass)
+ name         | text                        |           | not null |
+ ip_address   | text                        |           | not null |
+ description  | text                        |           |          |
+ is_alive     | boolean                     |           |          | false
+ last_checked | timestamp without time zone |           |          |
+Indexes:
+    "devices_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "device_history" CONSTRAINT "device_history_device_id_fkey" FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
+    TABLE "notifications" CONSTRAINT "notifications_device_id_fkey" FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
+
+                               Table "public.projects"
+   Column    |  Type   | Collation | Nullable |               Default
+-------------+---------+-----------+----------+--------------------------------------
+ id          | integer |           | not null | nextval('projects_id_seq'::regclass)
+ name        | text    |           | not null |
+ description | text    |           |          |
+ status      | text    |           |          | 'not_started'::text
+ assigned_to | integer |           |          |
+Indexes:
+    "projects_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "projects_assigned_to_fkey" FOREIGN KEY (assigned_to) REFERENCES users(id)
+Referenced by:
+    TABLE "tasks" CONSTRAINT "tasks_project_id_fkey" FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+
