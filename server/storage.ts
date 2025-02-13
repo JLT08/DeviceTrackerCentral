@@ -1,5 +1,5 @@
-import { users, devices, projects } from "@shared/schema";
-import type { InsertUser, InsertDevice, InsertProject, User, Device, Project } from "@shared/schema";
+import { users, devices, projects, deviceGroups } from "@shared/schema";
+import type { InsertUser, InsertDevice, InsertProject, InsertDeviceGroup, User, Device, Project, DeviceGroup } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import session from "express-session";
@@ -18,6 +18,14 @@ export interface IStorage {
   createDevice(device: InsertDevice): Promise<Device>;
   updateDevice(id: number, device: Partial<Device>): Promise<Device>;
   deleteDevice(id: number): Promise<void>;
+  getDevicesByGroup(groupId: number): Promise<Device[]>;
+  getDevicesByCategory(category: string): Promise<Device[]>;
+
+  getDeviceGroups(): Promise<DeviceGroup[]>;
+  getDeviceGroup(id: number): Promise<DeviceGroup | undefined>;
+  createDeviceGroup(group: InsertDeviceGroup): Promise<DeviceGroup>;
+  updateDeviceGroup(id: number, group: Partial<DeviceGroup>): Promise<DeviceGroup>;
+  deleteDeviceGroup(id: number): Promise<void>;
 
   getProjects(): Promise<Project[]>;
   getProject(id: number): Promise<Project | undefined>;
@@ -68,7 +76,7 @@ export class DatabaseStorage implements IStorage {
       .insert(devices)
       .values({
         ...insertDevice,
-        isAlive: false,
+        isOnline: false,
         lastSeen: new Date(),
       })
       .returning();
@@ -87,6 +95,54 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDevice(id: number): Promise<void> {
     await db.delete(devices).where(eq(devices.id, id));
+  }
+
+  async getDevicesByGroup(groupId: number): Promise<Device[]> {
+    return await db
+      .select()
+      .from(devices)
+      .where(eq(devices.groupId, groupId));
+  }
+
+  async getDevicesByCategory(category: string): Promise<Device[]> {
+    return await db
+      .select()
+      .from(devices)
+      .where(eq(devices.category, category));
+  }
+
+  async getDeviceGroups(): Promise<DeviceGroup[]> {
+    return await db.select().from(deviceGroups);
+  }
+
+  async getDeviceGroup(id: number): Promise<DeviceGroup | undefined> {
+    const [group] = await db
+      .select()
+      .from(deviceGroups)
+      .where(eq(deviceGroups.id, id));
+    return group;
+  }
+
+  async createDeviceGroup(insertGroup: InsertDeviceGroup): Promise<DeviceGroup> {
+    const [group] = await db
+      .insert(deviceGroups)
+      .values(insertGroup)
+      .returning();
+    return group;
+  }
+
+  async updateDeviceGroup(id: number, group: Partial<DeviceGroup>): Promise<DeviceGroup> {
+    const [updated] = await db
+      .update(deviceGroups)
+      .set(group)
+      .where(eq(deviceGroups.id, id))
+      .returning();
+    if (!updated) throw new Error("Device group not found");
+    return updated;
+  }
+
+  async deleteDeviceGroup(id: number): Promise<void> {
+    await db.delete(deviceGroups).where(eq(deviceGroups.id, id));
   }
 
   async getProjects(): Promise<Project[]> {

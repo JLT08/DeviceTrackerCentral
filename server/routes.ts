@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { setupWebSocket } from "./websocket";
 import { storage } from "./storage";
-import { insertDeviceSchema, insertProjectSchema } from "@shared/schema";
+import { insertDeviceSchema, insertProjectSchema, insertDeviceGroupSchema } from "@shared/schema";
 import { ZodError } from "zod";
 
 export function registerRoutes(app: Express): Server {
@@ -12,6 +12,51 @@ export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
   setupWebSocket(httpServer);
 
+  // Device Groups endpoints
+  app.get("/api/device-groups", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const groups = await storage.getDeviceGroups();
+    res.json(groups);
+  });
+
+  app.post("/api/device-groups", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const group = insertDeviceGroupSchema.parse(req.body);
+      const created = await storage.createDeviceGroup(group);
+      res.status(201).json(created);
+    } catch (e) {
+      if (e instanceof ZodError) {
+        res.status(400).json(e.errors);
+      } else {
+        throw e;
+      }
+    }
+  });
+
+  app.patch("/api/device-groups/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const id = parseInt(req.params.id);
+    try {
+      const updated = await storage.updateDeviceGroup(id, req.body);
+      res.json(updated);
+    } catch (error) {
+      if (error instanceof Error && error.message === "Device group not found") {
+        res.status(404).json({ error: "Device group not found" });
+      } else {
+        throw error;
+      }
+    }
+  });
+
+  app.delete("/api/device-groups/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const id = parseInt(req.params.id);
+    await storage.deleteDeviceGroup(id);
+    res.sendStatus(204);
+  });
+
+  // Devices endpoints
   app.get("/api/devices", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const devices = await storage.getDevices();
@@ -47,6 +92,7 @@ export function registerRoutes(app: Express): Server {
     res.sendStatus(204);
   });
 
+  // Projects endpoints
   app.get("/api/projects", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const projects = await storage.getProjects();
