@@ -5,8 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeviceStatus } from "@/components/device-status";
 import { DeviceGroupForm } from "@/components/device-group-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { capitalize } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent
+} from "@/components/ui/dialog";
 
 export function DeviceGroups() {
   const { data: devices, isLoading: isLoadingDevices } = useQuery<Device[]>({
@@ -42,7 +48,17 @@ export function DeviceGroups() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Device Management</h2>
-        <DeviceGroupForm />
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Group
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DeviceGroupForm />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Tabs defaultValue="groups">
