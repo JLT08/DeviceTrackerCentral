@@ -3,13 +3,15 @@ import { User, Device } from "@shared/schema";
 
 // Initialize the email transporter with less secure app access
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.rgoc.com.ph',
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.GMAIL_USER || 'johnlennarttimbal24@gmail.com',
-    pass: process.env.GMAIL_PASSWORD // Regular Gmail password
+    user: process.env.SMTP_USER || 'smtpmailer@rgoc.com.ph',
+    pass: process.env.SMTP_PASSWORD
   },
   tls: {
-    rejectUnauthorized: false // Allow self-signed certificates
+    rejectUnauthorized: false
   }
 });
 
