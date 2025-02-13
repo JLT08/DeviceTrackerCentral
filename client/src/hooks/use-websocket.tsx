@@ -17,43 +17,54 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const connectWebSocket = () => {
-      setStatus("connecting");
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
-      const ws = new WebSocket(wsUrl);
+      try {
+        setStatus("connecting");
+        const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+        console.log('Connecting to WebSocket:', wsUrl);
 
-      ws.onopen = () => {
-        setStatus("connected");
-        setSocket(ws);
-        toast({
-          title: "WebSocket Connected",
-          description: "Real-time updates are now active",
-        });
-      };
+        const ws = new WebSocket(wsUrl);
 
-      ws.onclose = () => {
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+          setStatus("connected");
+          setSocket(ws);
+          toast({
+            title: "WebSocket Connected",
+            description: "Real-time updates are now active",
+          });
+        };
+
+        ws.onclose = () => {
+          console.log('WebSocket disconnected');
+          setStatus("disconnected");
+          setSocket(null);
+          toast({
+            title: "WebSocket Disconnected",
+            description: "Attempting to reconnect...",
+            variant: "destructive",
+          });
+          // Attempt to reconnect after 5 seconds
+          setTimeout(connectWebSocket, 5000);
+        };
+
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          ws.close();
+        };
+
+        return ws;
+      } catch (error) {
+        console.error('Error connecting to WebSocket:', error);
         setStatus("disconnected");
-        setSocket(null);
-        toast({
-          title: "WebSocket Disconnected",
-          description: "Attempting to reconnect...",
-          variant: "destructive",
-        });
-        // Attempt to reconnect after 5 seconds
-        setTimeout(connectWebSocket, 5000);
-      };
-
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        ws.close();
-      };
+        return null;
+      }
     };
 
-    connectWebSocket();
+    const ws = connectWebSocket();
 
     return () => {
-      if (socket) {
-        socket.close();
+      if (ws) {
+        ws.close();
       }
     };
   }, []);

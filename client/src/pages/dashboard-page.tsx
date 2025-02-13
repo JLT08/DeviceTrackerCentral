@@ -13,26 +13,18 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { useState, useEffect } from "react";
+import { useWebSocket } from "@/hooks/use-websocket";
 
 // Updated status colors to use valid badge variants
 const statusColors = {
   not_started: "secondary",
   in_progress: "default",
-  complete: "default", // Changed from 'success' to 'default'
+  complete: "default",
 } as const;
 
 type ProjectStatus = keyof typeof statusColors;
-
-// Sample data for the graph
-const deviceData = [
-  { time: '00:00', onlineDevices: 4 },
-  { time: '04:00', onlineDevices: 3 },
-  { time: '08:00', onlineDevices: 5 },
-  { time: '12:00', onlineDevices: 6 },
-  { time: '16:00', onlineDevices: 4 },
-  { time: '20:00', onlineDevices: 3 },
-];
 
 export default function DashboardPage() {
   const { data: devices, isLoading: isLoadingDevices } = useQuery<Device[]>({
@@ -42,6 +34,39 @@ export default function DashboardPage() {
   const { data: projects, isLoading: isLoadingProjects } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
+
+  const { socket, status: wsStatus } = useWebSocket();
+  const [connectionData, setConnectionData] = useState<Array<{
+    timestamp: string;
+    onlineDevices: number;
+    totalDevices: number;
+  }>>([]);
+
+  // Update connection data when receiving WebSocket messages
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleDeviceStatus = (event: MessageEvent) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "device_status") {
+        setConnectionData(prev => {
+          const now = new Date();
+          const newPoint = {
+            timestamp: now.toLocaleTimeString(),
+            onlineDevices: (devices || []).filter(d => d.isOnline).length,
+            totalDevices: (devices || []).length
+          };
+
+          // Keep last 10 data points for smooth animation
+          const newData = [...prev, newPoint].slice(-10);
+          return newData;
+        });
+      }
+    };
+
+    socket.addEventListener("message", handleDeviceStatus);
+    return () => socket.removeEventListener("message", handleDeviceStatus);
+  }, [socket, devices]);
 
   if (!devices && isLoadingDevices) {
     return (
@@ -58,27 +83,46 @@ export default function DashboardPage() {
         <div className="p-8">
           <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
-          {/* Device Status Graph */}
+          {/* Connection Health Graph */}
           <section className="mb-8">
             <Card>
               <CardHeader>
-                <CardTitle>Device Status Over Time</CardTitle>
+                <CardTitle>Connection Health Dashboard</CardTitle>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={deviceData}>
+                  <AreaChart data={connectionData}>
+                    <defs>
+                      <linearGradient id="connectionHealth" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line 
-                      type="monotone" 
-                      dataKey="onlineDevices" 
-                      stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      name="Online Devices"
+                    <XAxis 
+                      dataKey="timestamp"
+                      tick={{ fill: 'hsl(var(--foreground))' }}
                     />
-                  </LineChart>
+                    <YAxis 
+                      tick={{ fill: 'hsl(var(--foreground))' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="onlineDevices"
+                      stroke="hsl(var(--primary))"
+                      fillOpacity={1}
+                      fill="url(#connectionHealth)"
+                      name="Online Devices"
+                      animationDuration={300}
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>

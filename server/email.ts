@@ -5,7 +5,7 @@ import { User, Device } from "@shared/schema";
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'johnlennarttimbal24@gmail.com', // Your Gmail address
+    user: process.env.GMAIL_USER || 'johnlennarttimbal24@gmail.com',
     pass: process.env.GMAIL_PASSWORD // Regular Gmail password
   },
   tls: {
@@ -45,7 +45,7 @@ export class EmailService {
 
     try {
       await transporter.sendMail({
-        from: 'johnlennarttimbal24@gmail.com', // Your Gmail address
+        from: process.env.GMAIL_USER || 'johnlennarttimbal24@gmail.com',
         to: user.email,
         subject,
         html,
