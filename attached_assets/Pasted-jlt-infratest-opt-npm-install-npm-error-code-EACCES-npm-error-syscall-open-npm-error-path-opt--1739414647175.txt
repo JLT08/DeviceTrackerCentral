@@ -1,0 +1,74 @@
+jlt@infratest:/opt$ npm install
+npm error code EACCES
+npm error syscall open
+npm error path /opt/package-lock.json
+npm error errno -13
+npm error [Error: EACCES: permission denied, open '/opt/package-lock.json'] {
+npm error   errno: -13,
+npm error   code: 'EACCES',
+npm error   syscall: 'open',
+npm error   path: '/opt/package-lock.json'
+npm error }
+npm error
+npm error The operation was rejected by your operating system.
+npm error It is likely you do not have the permissions to access this file as the current user
+npm error
+npm error If you believe this might be a permissions issue, please double-check the
+npm error permissions of the file and its containing directories, or try running
+npm error the command again as root/Administrator.
+npm error A complete log of this run can be found in: /home/jlt/.npm/_logs/2025-02-13T02_42_12_612Z-debug-0.log
+jlt@infratest:/opt$ sudo npm install
+npm error code ENOENT
+npm error syscall open
+npm error path /opt/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/opt/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /root/.npm/_logs/2025-02-13T02_42_26_858Z-debug-0.log
+jlt@infratest:/opt$ sudo chown -R jlt:jlt /opt/DeviceTrackerCentral
+jlt@infratest:/opt$ sudo npm install
+npm error code ENOENT
+npm error syscall open
+npm error path /opt/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/opt/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /root/.npm/_logs/2025-02-13T02_42_37_442Z-debug-0.log
+jlt@infratest:/opt$ cd /opt/DeviceTrackerCentral
+jlt@infratest:/opt/DeviceTrackerCentral$ ls -l package.json
+-rw-rw-r-- 1 jlt jlt 3539 Feb 12 05:44 package.json
+jlt@infratest:/opt/DeviceTrackerCentral$ npm install express
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 588 packages, and audited 589 packages in 13s
+
+64 packages are looking for funding
+  run `npm fund` for details
+
+1 moderate severity vulnerability
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+jlt@infratest:/opt/DeviceTrackerCentral$ npm run dev
+
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+
+/opt/DeviceTrackerCentral/server/db.ts:9
+  throw new Error(
+        ^
+
+
+Error: DATABASE_URL must be set. Did you forget to provision a database?
+    at <anonymous> (/opt/DeviceTrackerCentral/server/db.ts:9:9)
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:337:24)
+    at async loadESM (node:internal/process/esm_loader:34:7)
+    at async handleMainPromise (node:internal/modules/run_main:106:12)
+
+Node.js v18.20.6
