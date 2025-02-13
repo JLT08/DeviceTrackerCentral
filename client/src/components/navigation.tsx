@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Server, Folder, LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { WebSocketStatus } from "@/components/websocket-status";
 
 export function Navigation() {
   const { logoutMutation } = useAuth();
@@ -12,7 +13,10 @@ export function Navigation() {
     <div className="flex flex-col h-screen w-64 border-r bg-background">
       {/* Header */}
       <div className="p-6 border-b">
-        <h1 className="text-xl font-bold">ICUMS</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold">ICUMS</h1>
+          <WebSocketStatus />
+        </div>
       </div>
 
       {/* Navigation Links */}

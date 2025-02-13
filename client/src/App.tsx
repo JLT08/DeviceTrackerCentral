@@ -3,7 +3,7 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./hooks/use-auth";
-import { ProtectedRoute } from "./lib/protected-route";
+import { WebSocketProvider } from "./hooks/use-websocket";
 
 // Import pages
 import AuthPage from "@/pages/auth-page";
@@ -28,8 +28,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router />
-        <Toaster />
+        <WebSocketProvider>
+          <Router />
+          <Toaster />
+        </WebSocketProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
